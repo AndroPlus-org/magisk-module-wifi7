@@ -1,0 +1,2 @@
+# Enable Wi-Fi 7 (for some devices)
+ro.oplus.wifi.11be_disabled=0
