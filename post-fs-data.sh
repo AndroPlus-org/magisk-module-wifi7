@@ -13,7 +13,7 @@ if [ -e "${MODDIR}/xml/${WIFICFG}" ]; then
 fi
 
 # Comment out if you don't want to change country code
-cmd wifi force-country-code enabled US
-resetprop -n ro.boot.wificountrycode US
-resetprop -n ro.boot.hwc US
-iw reg set US
+cmd wifi force-country-code enabled CR
+resetprop -n ro.boot.wificountrycode CR
+resetprop -n ro.boot.hwc CR
+iw reg set CR
