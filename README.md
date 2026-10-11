@@ -25,6 +25,12 @@ Wi-Fi のリソースパッケージ名は端末によって異なるため、2 
 
 ## 動作しないときの確認方法
 
+Magisk / KernelSU マネージャーでこのモジュールの「アクション」ボタンを押すと診断情報を表示し、`/sdcard/Download/wifi7_diag.txt` に保存する。不具合報告時はこのファイルを添付すること。
+
+- Qualcomm 端末は `WCNSS_qcom_cfg.ini` の `BandCapability` も書き換えているが、MediaTek 端末のドライバ設定（`wifi.cfg` など）にはまだ対応していない。診断結果の「Driver config files」欄で該当ファイルと設定値を確認できる。
+
+手動で確認する場合:
+
 ```sh
 # Wi-Fi リソースのパッケージ名
 pm list packages | grep wifi.resources
