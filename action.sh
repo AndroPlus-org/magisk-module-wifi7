@@ -79,11 +79,12 @@ diag() {
     find /vendor /odm /data/vendor /mnt/vendor -name 'wifi*.cfg' 2>/dev/null
     ls /proc/net/wlan /proc/wlan 2>&1
     for c in /proc/net/wlan/cfg /proc/wlan/cfg; do
-        [ -r "$c" ] && grep -i -E '6g|eht|disallow|country' "$c"
+        [ -r "$c" ] || continue
+        cat "$c" > "$MODDIR/cfg.txt" 2>&1
+        echo "$c: $(wc -l < "$MODDIR/cfg.txt") lines"
+        grep -i -E '6g|eht|disallow|country' "$MODDIR/cfg.txt"
     done
-    for k in DisallowBand6G ApEHT StaEHT; do
-        echo "GET_CFG $k: $(wpa_cli -i wlan0 -p /data/vendor/wifi/wpa/sockets DRIVER GET_CFG $k 2>&1 | tail -n 1)"
-    done
+    ls -l /metadata/enable-wifi-7 2>&1
     iw reg get 2>&1 | head -n 40
     iw phy 2>&1 | grep -E 'Band [0-9]|MHz' | cut -c1-120 | head -n 120
     echo "--- scan results >= 5925MHz"

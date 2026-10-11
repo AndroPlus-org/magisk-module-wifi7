@@ -27,7 +27,18 @@ Wi-Fi のリソースパッケージ名は端末によって異なるため、2 
 | Qualcomm | `WCNSS_qcom_cfg.ini` | `BandCapability` を無効化、`enable_11be=1` |
 | MediaTek | `/odm/etc/wifi/wifi.cfg` など | `DisallowBand6G 1` → `0`（中国版 ColorOS などで 6GHz が無効化されている場合） |
 
+KernelSU では `initrc/wifi7.rc` で起動初期（`on init`）にも同じファイルをマウントし、ドライバの初期化より前に差し替える。差し替え用のファイルは前回起動時に作るため、インストール後 2 回目の起動から効く。
+
 MediaTek では起動完了後に 6GHz のチャンネルがドライバに登録されていなければ、Wi-Fi を 1 回オフ→オンして設定を読み直させる。
+
+## 注意: 一時 root（tmp root）環境では 6GHz を有効化できない
+
+再起動のたびに KernelSU を入れ直し、ソフトリブートでモジュールを読み込ませる一時 root 環境では、ドライバ設定の書き換えが効かない。Wi-Fi ドライバは root のない通常起動時に元の設定で初期化され、ソフトリブートではカーネル側のドライバが再初期化されないため。
+
+- 確認した端末: OPPO K15 Pro+（Dimensity 9500s / MT6991、ColorOS 16 中国版、KernelSU 3.2.5 の tmp root）
+- 結果: Wi-Fi 7（802.11be）は 5GHz で接続できるが、6GHz はドライバが拒否する（`Band[6G] is not allowed`）
+- 試して効かなかった方法: `wifi.cfg` の差し替え、Wi-Fi のオフ→オン、`/proc/net/wlan/cfg` への書き込み、ドライバモジュールの再読み込み
+- オーバーレイやスクリプトによる変更（国コードなど）は通常どおり適用される
 
 ## KernelSU を使う場合
 
