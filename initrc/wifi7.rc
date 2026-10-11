@@ -1,0 +1,7 @@
+# KernelSU only: bind-mount the patched MediaTek wifi.cfg before the Wi-Fi
+# driver starts. The copies are prepared by post-fs-data.sh on the previous boot.
+on init
+    mount none /metadata/enable-wifi-7/odm_etc_wifi_wifi.cfg /odm/etc/wifi/wifi.cfg bind
+
+on post-fs-data
+    mount none /data/adb/modules/enable-wifi-7/xml/odm_etc_wifi_wifi.cfg /odm/etc/wifi/wifi.cfg bind

@@ -27,6 +27,8 @@ Wi-Fi のリソースパッケージ名は端末によって異なるため、2 
 | Qualcomm | `WCNSS_qcom_cfg.ini` | `BandCapability` を無効化、`enable_11be=1` |
 | MediaTek | `/odm/etc/wifi/wifi.cfg` など | `DisallowBand6G 1` → `0`（中国版 ColorOS などで 6GHz が無効化されている場合） |
 
+KernelSU では `initrc/wifi7.rc` で起動初期（`on init`）にも同じファイルをマウントし、ドライバの初期化より前に差し替える。差し替え用のファイルは前回起動時に作るため、インストール後 2 回目の起動から効く。
+
 MediaTek では起動完了後に 6GHz のチャンネルがドライバに登録されていなければ、Wi-Fi を 1 回オフ→オンして設定を読み直させる。
 
 ## KernelSU を使う場合

@@ -23,17 +23,26 @@ rm -f "${MODDIR}/mtk6g"
 
 # MediaTek: allow 6GHz in the driver config (DisallowBand6G 1 on CN builds)
 for MTKCFG in /odm/etc/wifi/wifi.cfg /vendor/etc/wifi/wifi.cfg /vendor/firmware/wifi.cfg; do
-    # Drop a mount left over from a soft reboot or a module update
-    if grep -q " $MTKCFG " /proc/1/mountinfo; then
+    # Drop mounts left over from initrc, a soft reboot or a module update
+    N=0
+    while grep -q " $MTKCFG " /proc/1/mountinfo && [ $N -lt 5 ]; do
+        echo "existing mount on $MTKCFG: $(grep " $MTKCFG " /proc/1/mountinfo | cut -d' ' -f4 | tail -n 1)" >> "${MODDIR}/boot.log"
         nsenter -t 1 -m -- umount "$MTKCFG" 2>/dev/null
         umount "$MTKCFG" 2>/dev/null
-    fi
+        N=$((N + 1))
+    done
     grep -q '^DisallowBand6G[[:space:]]*1' "$MTKCFG" 2>/dev/null || continue
     MODCFG="${MODDIR}/xml/$(echo ${MTKCFG#/} | tr / _)"
     cp -f "$MTKCFG" "$MODCFG"
     sed -i 's/^\(DisallowBand6G[[:space:]]*\)1/\10/' "$MODCFG"
     chmod 644 "$MODCFG"
     chcon --reference="$MTKCFG" "$MODCFG"
+    # Early copy for initrc/wifi7.rc (on init), since /data is not ready yet
+    if [ -d /metadata ]; then
+        mkdir -p /metadata/enable-wifi-7
+        cp -f "$MODCFG" /metadata/enable-wifi-7/
+        chcon --reference="$MTKCFG" "/metadata/enable-wifi-7/${MODCFG##*/}"
+    fi
     # Mount in init's namespace so kernel-side reads of the file see it too
     nsenter -t 1 -m -- mount -o ro,bind "$MODCFG" "$MTKCFG" || mount -o ro,bind "$MODCFG" "$MTKCFG"
     touch "${MODDIR}/mtk6g"
