@@ -12,6 +12,8 @@ if [ -e "${MODDIR}/xml/${WIFICFG}" ]; then
     mount -o ro,bind ${MODDIR}/xml/${WIFICFG} /odm/vendor/etc/wifi/${WIFICFG}
 fi
 
+rm -f "${MODDIR}/mtk6g"
+
 # Record boot timing to see whether the Wi-Fi driver was already loaded
 {
     echo "uptime: $(cut -d' ' -f1 /proc/uptime)"
@@ -27,8 +29,11 @@ for MTKCFG in /odm/etc/wifi/wifi.cfg /vendor/etc/wifi/wifi.cfg /vendor/firmware/
     sed -i 's/^\(DisallowBand6G[[:space:]]*\)1/\10/' "$MODCFG"
     chmod 644 "$MODCFG"
     chcon --reference="$MTKCFG" "$MODCFG"
-    mount -o ro,bind "$MODCFG" "$MTKCFG"
+    # Mount in init's namespace so kernel-side reads of the file see it too
+    nsenter -t 1 -m -- mount -o ro,bind "$MODCFG" "$MTKCFG" || mount -o ro,bind "$MODCFG" "$MTKCFG"
+    touch "${MODDIR}/mtk6g"
 done
+echo "init ns mount: $(grep -c wifi.cfg /proc/1/mountinfo)" >> "${MODDIR}/boot.log"
 
 # Comment out if you don't want to change country code
 resetprop -n ro.boot.wificountrycode AU
