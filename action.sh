@@ -79,7 +79,7 @@ diag() {
     find /vendor /odm /data/vendor /mnt/vendor -name 'wifi*.cfg' 2>/dev/null
     ls /proc/net/wlan /proc/wlan 2>&1
     for c in /proc/net/wlan/cfg /proc/wlan/cfg; do
-        [ -r "$c" ] && head -c 4000 "$c"
+        [ -r "$c" ] && grep -i -E '6g|eht|disallow|country' "$c"
     done
     for k in DisallowBand6G ApEHT StaEHT; do
         echo "GET_CFG $k: $(wpa_cli -i wlan0 -p /data/vendor/wifi/wpa/sockets DRIVER GET_CFG $k 2>&1 | tail -n 1)"

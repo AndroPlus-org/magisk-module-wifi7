@@ -23,6 +23,11 @@ rm -f "${MODDIR}/mtk6g"
 
 # MediaTek: allow 6GHz in the driver config (DisallowBand6G 1 on CN builds)
 for MTKCFG in /odm/etc/wifi/wifi.cfg /vendor/etc/wifi/wifi.cfg /vendor/firmware/wifi.cfg; do
+    # Drop a mount left over from a soft reboot or a module update
+    if grep -q " $MTKCFG " /proc/1/mountinfo; then
+        nsenter -t 1 -m -- umount "$MTKCFG" 2>/dev/null
+        umount "$MTKCFG" 2>/dev/null
+    fi
     grep -q '^DisallowBand6G[[:space:]]*1' "$MTKCFG" 2>/dev/null || continue
     MODCFG="${MODDIR}/xml/$(echo ${MTKCFG#/} | tr / _)"
     cp -f "$MTKCFG" "$MODCFG"
