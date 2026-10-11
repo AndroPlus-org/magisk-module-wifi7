@@ -7,7 +7,7 @@
 MODDIR=${0%/*}
 
 has_6g_channels() {
-    iw phy 2>/dev/null | grep -q -E '\* (59[3-9][0-9]|6[0-9]{3}|7[01][0-9]{2}) MHz'
+    iw phy 2>/dev/null | grep -q -E ' (59[3-9][0-9]|6[0-9][0-9][0-9]|7[01][0-9][0-9]) MHz'
 }
 
 {
