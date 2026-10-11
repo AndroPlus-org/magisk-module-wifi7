@@ -12,6 +12,13 @@ if [ -e "${MODDIR}/xml/${WIFICFG}" ]; then
     mount -o ro,bind ${MODDIR}/xml/${WIFICFG} /odm/vendor/etc/wifi/${WIFICFG}
 fi
 
+# Record boot timing to see whether the Wi-Fi driver was already loaded
+{
+    echo "uptime: $(cut -d' ' -f1 /proc/uptime)"
+    echo "wlan modules: $(grep -i -E 'wlan|gen4m|connac' /proc/modules | cut -d' ' -f1 | tr '\n' ' ')"
+    [ -e /proc/net/wlan ] && echo "/proc/net/wlan exists"
+} > "${MODDIR}/boot.log" 2>&1
+
 # MediaTek: allow 6GHz in the driver config (DisallowBand6G 1 on CN builds)
 for MTKCFG in /odm/etc/wifi/wifi.cfg /vendor/etc/wifi/wifi.cfg /vendor/firmware/wifi.cfg; do
     grep -q '^DisallowBand6G[[:space:]]*1' "$MTKCFG" 2>/dev/null || continue
