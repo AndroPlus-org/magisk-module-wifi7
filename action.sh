@@ -62,9 +62,30 @@ diag() {
     done
 
     section "OPLUS feature flags"
-    grep -r -I -i -h -E 'wifi7|wifi_7|11be|6ghz|wifi_6g|wlan.*6g' \
-        /my_product/etc /my_region/etc /my_bigball/etc /my_stock/etc /my_heytap/etc \
-        /odm/etc/permissions /vendor/etc/permissions /product/etc/permissions 2>/dev/null | head -n 60
+    find /my_product/etc /my_region/etc /my_bigball/etc /my_stock/etc /my_heytap/etc \
+        /odm/etc/permissions /vendor/etc/permissions /product/etc/permissions \
+        -name '*.xml' 2>/dev/null | xargs grep -i -h -E 'wifi7|wifi_7|11be|6ghz|wifi_6g|wlan.*6g' 2>/dev/null | cut -c1-300 | head -n 60
+
+    section "Wi-Fi props"
+    getprop | grep -i -E 'wifi|wlan|6g' | grep -v -i 'mac' | head -n 80
+
+    section "Driver 6GHz state"
+    find /vendor /odm /data/vendor /mnt/vendor -name 'wifi*.cfg' 2>/dev/null
+    ls /proc/net/wlan /proc/wlan 2>&1
+    for c in /proc/net/wlan/cfg /proc/wlan/cfg; do
+        [ -r "$c" ] && grep -i -E '6g|eht|band' "$c" | head -n 40
+    done
+    for k in DisallowBand6G ApEHT StaEHT; do
+        echo "GET_CFG $k: $(wpa_cli -i wlan0 -p /data/vendor/wifi/wpa/sockets DRIVER GET_CFG $k 2>&1 | tail -n 1)"
+    done
+    iw reg get 2>&1 | head -n 40
+    iw phy 2>&1 | grep -E 'Band [0-9]|MHz' | cut -c1-120 | head -n 120
+    echo "--- scan results >= 5925MHz"
+    cmd wifi list-scan-results 2>&1 | awk 'NR==1 || $2+0 >= 5925' | head -n 30
+    echo "--- dmesg"
+    dmesg 2>/dev/null | grep -i -E '6g|band6|wifi.cfg|DisallowBand|country|regd' | tail -n 60
+    echo "--- logcat"
+    logcat -d -b all 2>/dev/null | grep -i -E '6ghz|band6g|DisallowBand|6g band' | tail -n 40
 }
 
 diag 2>&1 | tee "$OUT"
