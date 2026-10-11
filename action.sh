@@ -37,6 +37,7 @@ diag() {
     section "Overlays targeting wifi resources"
     cmd overlay list | grep -i -A20 'wifi.resources'
     cmd overlay dump 2>/dev/null | grep -i -B2 -A12 'wifi7'
+    grep -h wifi /proc/mounts
 
     section "Resolved values"
     for pkg in com.android.wifi.resources com.google.android.wifi.resources; do
@@ -50,18 +51,18 @@ diag() {
     section "Wi-Fi state"
     cmd wifi get-country-code 2>&1
     cmd wifi status 2>&1 | head -n 20
-    dumpsys wifi 2>/dev/null | grep -i -E '11be|wifi7|6ghz|6g band|eht|mlo' | head -n 40
+    dumpsys wifi 2>/dev/null | grep -i -E '11be|wifi7|6ghz|6g band|eht|mlo' | cut -c1-300 | head -n 40
 
     section "Driver config files"
     for f in $(find /vendor/firmware /vendor/etc/wifi /odm/firmware /odm/etc/wifi \
         /odm/vendor/firmware /odm/vendor/etc/wifi /mnt/vendor/persist/wlan \
         -maxdepth 2 \( -iname 'wifi*.cfg' -o -iname '*.ini' \) 2>/dev/null); do
         echo "--- $f"
-        grep -i -E '6g|eht|11be|band|mlo|wifi7' "$f" | head -n 40
+        grep -v -E '^[[:space:]]*(#|$)' "$f" | head -n 200
     done
 
     section "OPLUS feature flags"
-    grep -r -i -h -E 'wifi7|wifi_7|11be|6ghz|wifi_6g|wlan.*6g' \
+    grep -r -I -i -h -E 'wifi7|wifi_7|11be|6ghz|wifi_6g|wlan.*6g' \
         /my_product/etc /my_region/etc /my_bigball/etc /my_stock/etc /my_heytap/etc \
         /odm/etc/permissions /vendor/etc/permissions /product/etc/permissions 2>/dev/null | head -n 60
 }
