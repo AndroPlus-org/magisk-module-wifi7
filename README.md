@@ -18,6 +18,15 @@ Wi-Fi のリソースパッケージ名は端末によって異なるため、2 
 - `config_wifiSoftapIeee80211beSupported` = true
 - `config_wifiBand6GhzBonus` = 7
 
+## ドライバ設定の書き換え
+
+オーバーレイとは別に、ドライバの設定ファイルも起動時にバインドマウントで差し替える（メタモジュール不要）。
+
+| SoC | ファイル | 変更内容 |
+| --- | --- | --- |
+| Qualcomm | `WCNSS_qcom_cfg.ini` | `BandCapability` を無効化、`enable_11be=1` |
+| MediaTek | `/odm/etc/wifi/wifi.cfg` など | `DisallowBand6G 1` → `0`（中国版 ColorOS などで 6GHz が無効化されている場合） |
+
 ## KernelSU を使う場合
 
 - 公式 KernelSU v3.0 以降は本体がモジュールの `system` ファイルをマウントしない。[meta-overlayfs](https://github.com/RipperHybrid/Meta-Overlayfsx) などのメタモジュールを先にインストールすること。メタモジュールがないとオーバーレイが配置されず、国コード変更などのスクリプト処理しか効かない。
@@ -27,7 +36,7 @@ Wi-Fi のリソースパッケージ名は端末によって異なるため、2 
 
 Magisk / KernelSU マネージャーでこのモジュールの「アクション」ボタンを押すと診断情報を表示し、`/sdcard/Download/wifi7_diag.txt` に保存する。不具合報告時はこのファイルを添付すること。
 
-- Qualcomm 端末は `WCNSS_qcom_cfg.ini` の `BandCapability` も書き換えているが、MediaTek 端末のドライバ設定（`wifi.cfg` など）にはまだ対応していない。診断結果の「Driver config files」欄で該当ファイルと設定値を確認できる。
+- 診断結果の「Driver config files」欄でドライバ設定ファイルと設定値を確認できる。
 
 手動で確認する場合:
 
