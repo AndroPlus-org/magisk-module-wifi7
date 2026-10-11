@@ -70,10 +70,16 @@ diag() {
     getprop | grep -i -E 'wifi|wlan|6g' | grep -v -i 'mac' | head -n 80
 
     section "Driver 6GHz state"
+    echo "--- boot.log (post-fs-data)"
+    cat "$MODDIR/boot.log" 2>&1
+    echo "--- wifi.cfg mount in init namespace"
+    grep wifi /proc/1/mountinfo
+    echo "--- current uptime: $(cut -d' ' -f1 /proc/uptime)"
+    grep -i -E 'wlan|gen4m|connac' /proc/modules | cut -d' ' -f1
     find /vendor /odm /data/vendor /mnt/vendor -name 'wifi*.cfg' 2>/dev/null
     ls /proc/net/wlan /proc/wlan 2>&1
     for c in /proc/net/wlan/cfg /proc/wlan/cfg; do
-        [ -r "$c" ] && grep -i -E '6g|eht|band' "$c" | head -n 40
+        [ -r "$c" ] && head -c 4000 "$c"
     done
     for k in DisallowBand6G ApEHT StaEHT; do
         echo "GET_CFG $k: $(wpa_cli -i wlan0 -p /data/vendor/wifi/wpa/sockets DRIVER GET_CFG $k 2>&1 | tail -n 1)"
