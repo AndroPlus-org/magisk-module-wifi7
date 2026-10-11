@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <bool name="config_wifi11beSupportOverride">true</bool>
+    <bool name="config_wifi6ghzSupport">true</bool>
+    <bool name="config_wifiSoftapIeee80211beSupported">true</bool>
+    <integer name="config_wifiBand6GhzBonus">7</integer>
+</resources>
