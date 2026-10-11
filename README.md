@@ -20,7 +20,7 @@ Wi-Fi のリソースパッケージ名は端末によって異なるため、2 
 
 ## KernelSU を使う場合
 
-- 公式 KernelSU v3.0 以降は本体がモジュールの `system` ファイルをマウントしない。[meta-overlayfs](https://modules.kernelsu.org/module/meta-overlayfs) などのメタモジュールを先にインストールすること。メタモジュールがないとオーバーレイが配置されず、国コード変更などのスクリプト処理しか効かない。
+- 公式 KernelSU v3.0 以降は本体がモジュールの `system` ファイルをマウントしない。[meta-overlayfs](https://github.com/RipperHybrid/Meta-Overlayfsx) などのメタモジュールを先にインストールすること。メタモジュールがないとオーバーレイが配置されず、国コード変更などのスクリプト処理しか効かない。
 - KernelSU Next / SukiSU Ultra など、マウント機能を内蔵した派生版ではメタモジュールは不要。
 
 ## 動作しないときの確認方法
