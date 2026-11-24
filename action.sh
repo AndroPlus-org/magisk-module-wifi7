@@ -54,9 +54,10 @@ diag() {
     dumpsys wifi 2>/dev/null | grep -i -E '11be|wifi7|6ghz|6g band|eht|mlo' | cut -c1-300 | head -n 40
 
     section "Driver config files"
-    for f in $(find /vendor/firmware /vendor/etc/wifi /odm/firmware /odm/etc/wifi \
-        /odm/vendor/firmware /odm/vendor/etc/wifi /mnt/vendor/persist/wlan \
-        -maxdepth 2 \( -iname 'wifi*.cfg' -o -iname '*.ini' \) 2>/dev/null); do
+    for f in $(find /vendor/firmware /vendor/firmware/wlan/qca_cld /vendor/etc/wifi \
+        /odm/firmware /odm/etc/wifi /odm/vendor/firmware /odm/vendor/etc/wifi \
+        /mnt/vendor/persist/wlan \
+        -maxdepth 2 \( -iname 'wifi*.cfg' -o -iname 'WCNSS_qcom_cfg.ini' \) 2>/dev/null); do
         echo "--- $f"
         grep -v -E '^[[:space:]]*(#|$)' "$f" | head -n 200
     done
@@ -72,10 +73,13 @@ diag() {
     section "Driver 6GHz state"
     echo "--- boot.log (post-fs-data)"
     cat "$MODDIR/boot.log" 2>&1
-    echo "--- wifi.cfg mount in init namespace"
-    grep wifi /proc/1/mountinfo
+    echo "--- driver config mounts in init namespace"
+    grep -E 'wifi|WCNSS' /proc/1/mountinfo
+    echo "--- allowed channels"
+    cmd wifi get-allowed-channel 2>&1 | head -n 4
+    dumpsys wifi 2>/dev/null | grep -E 'mDriverCountryCode:|mOverrideCountryCode:'
     echo "--- current uptime: $(cut -d' ' -f1 /proc/uptime)"
-    grep -i -E 'wlan|gen4m|connac' /proc/modules | cut -d' ' -f1
+    grep -i -E 'wlan|gen4m|connac|qca_cld' /proc/modules | cut -d' ' -f1
     find /vendor /odm /data/vendor /mnt/vendor -name 'wifi*.cfg' 2>/dev/null
     ls /proc/net/wlan /proc/wlan 2>&1
     for c in /proc/net/wlan/cfg /proc/wlan/cfg; do
